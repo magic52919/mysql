@@ -1,16 +1,19 @@
-Lab1. 員工和顧客在各城市各有多少人
+Lab1. 員工和顧客在各城市各有多少人 (無過濾 0)
 
 計算customerid和employeeid有多少人在和表customers的city連結，最後再依照城市群組化
-select count(o.customerid) as customertotal,count(o.employeeid) as employeetotal,c.city from orders o
+select count(distinct o.customerid)  as customertotal,sum(distinct o.employeeid) as employeetotal,c.city from orders o
 join customers c on (c.customerid = o.customerid)
-group by c.city
-order by customertotal;
+join employees e on (e.employeeid = o.employeeid)
+group by c.city;
+
 
 Lab2. 在那個城市的產品 賣出金額大小
 
-select p.productname,sum(od.unitprice*od.quantity*(1-od.discount)) as money,s.city from `order details` od
+計算總金額
+select p.productname,sum(od.unitprice*od.quantity*(1-od.discount)) as money,c.city from `order details` od
 join products p on (p.productid = od.productid)
-join suppliers s on (s.supplierid = p.supplierid)
-group by s.city
+join orders o on (o.orderid = od.orderid)
+join customers c on (c.customerid = o.customerid)
+group by c.city
 order by money desc;
 
