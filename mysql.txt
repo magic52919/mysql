@@ -1,0 +1,23 @@
+Number
+1.int =>2^32 -21億 - 21億
+2.tinyint => 2^8 -128 - 127
+3.smallint => 2^16 -32768 - 32767
+3.mediumint => 2^24 正負8百多W
+5.bigint =>
+
+
+float
+1.float => 正負10^38
+2.double => 正負10^308
+
+string
+1.char => 固定 ~255
+2.varchar => 變動 ~255
+3.text =>65535
+4.longtext => 42億
+
+datetime
+1.datetime => yyyy-mm-dd hh:mm:ss 年從1000開始算
+2.date
+3.year => 4: 1901~2155 , 2: 1970~2069
+4.time
