@@ -5,7 +5,6 @@ Number
 3.mediumint => 2^24 正負8百多W
 5.bigint =>
 
-
 float
 1.float => 正負10^38
 2.double => 正負10^308

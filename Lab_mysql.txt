@@ -13,3 +13,4 @@ join products p on (p.productid = od.productid)
 join suppliers s on (s.supplierid = p.supplierid)
 group by s.city
 order by money desc;
+
