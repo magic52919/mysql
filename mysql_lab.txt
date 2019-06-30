@@ -1,0 +1,71 @@
+mysql Lab
+
+0. 每個辦公室的業績狀況表 
+1. 業務業績排行榜, procedure  要有時間區間order.date order.status (shipped)
+2. 熱銷商品排行榜, procedure  要有時間區間
+3. 業務訂單取消的比例 orders.sttaus = canceled
+4. 低於商品建議售價MSRP的訂單及其實際售價95% products
+5. 當訂單資料被修改及刪除的時候記錄在 log 資料表中, 時間及所有資料欄位
+
+
+
+0.
+select  e.officecode as office,sum(od.priceeach*od.quantityordered) as money from orders o 
+join customers c on (c.customernumber = o.customernumber)
+join orderdetails od on (od.ordernumber = o.ordernumber)
+join employees e on (e.employeenumber = c.salesrepemployeenumber)
+where o.status = 'Shipped'
+group by e.officecode 
+order by money desc;
+
+
+1.業務業績排行榜, procedure  要有時間區間order.date order.status (shipped)
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `employee`(IN `i` DATETIME)
+    NO SQL
+BEGIN
+select  o.orderdate,sum(od.priceeach*od.quantityordered) as money,c.salesRepEmployeenumber from orders o 
+join customers c on (c.customernumber = o.customernumber)
+join orderdetails od on (od.ordernumber = o.ordernumber)
+where o.orderdate = i
+group by c.salesRepEmployeenumber 
+order by money desc;
+END$$
+DELIMITER ;
+
+2.熱銷商品排行榜, procedure  要有時間區間
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `product`(IN `i` DATETIME)
+    NO SQL
+BEGIN
+
+select  p.productcode,o.orderdate,sum(od.priceeach*od.quantityordered) as money from orderdetails od
+join products p on (od.productcode = p.productcode)
+join orders o on (o.ordernumber = od.ordernumber)
+where o.orderdate = i
+group by p.productcode 
+order by money desc;
+END$$
+DELIMITER ;
+
+3.業務訂單取消的比例 orders.sttaus = canceled
+select 
+(select count(*) from orders where 1) as total,
+(select count(*) from orders where status = 'Cancelled') as can, round((select count(*) from orders where 1)/(select count(*) from orders where status = 'Cancelled'),0"%") as parcent
+
+4. 低於商品建議售價MSRP的訂單及其實際售價95% products
+select productCode,buyprice,MSRP,(0.95*msrp) as sales from products where buyprice < (0.95*MSRP);
+
+5. 當訂單資料被修改及刪除的時候記錄在 log 資料表中, 時間及所有資料欄位
+新增 刪除
+CREATE TRIGGER `update` AFTER UPDATE ON `orders`
+ FOR EACH ROW BEGIN
+INSERT into log(time, orderNumber, status, customerNumber) VALUES  
+(now(),new.orderNumber,new.status,new.customerNumber);
+END
+新增 刪除
+CREATE TRIGGER `delete` BEFORE DELETE ON `orders`
+ FOR EACH ROW BEGIN
+INSERT into log(time, orderNumber, status, customerNumber) VALUES  
+(now(),old.orderNumber,old.status,old.customerNumber);
+END
